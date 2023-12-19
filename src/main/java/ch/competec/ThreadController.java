@@ -52,4 +52,8 @@ public class ThreadController {
 
     System.out.println("Your randomly generated sum is: "+sum);
   }
+
+  public List<NumberThread> getThreadList() {
+    return threadList;
+  }
 }
