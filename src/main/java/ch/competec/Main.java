@@ -1,14 +1,11 @@
 package ch.competec;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
 
-  public static void main(String[] args) {
+  public static void main(String[] args){
     int numberOfThreads = 0;
-    List<NumberThread> numberThreadList = new ArrayList<>();
     boolean repeat = true;
 
     while (repeat) {
@@ -26,11 +23,15 @@ public class Main {
       }
     }
 
-    for (int i=0;i<numberOfThreads;i++) {
-      NumberThread numberThread = new NumberThread(new NumberData());
-      numberThreadList.add(numberThread);
-    }
+    ThreadController threadController = new ThreadController();
 
-    System.out.println(numberThreadList.size());
+    threadController.createThreads(numberOfThreads);
+    try {
+      threadController.startThreads();
+      threadController.getInformation();
+    } catch (InterruptedException ex) {
+      System.out.println("Thread couldn't sleep!");
+      System.exit(0);
+    }
   }
 }
