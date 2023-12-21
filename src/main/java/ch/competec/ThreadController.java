@@ -3,13 +3,35 @@ package ch.competec;
 import java.lang.Thread.State;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class ThreadController {
 
   private List<NumberThread> threadList = new ArrayList<>();
 
-  public void createThreads(int numberOfThreads) {
-    for (int i=0;i<numberOfThreads;i++) {
+  public int preCreateThreads() {
+    int numberOfThreads = 0;
+    boolean repeat = true;
+
+    while (repeat) {
+      Scanner scanner = new Scanner(System.in);
+      System.out.println(
+          "How many Threads do you want to start? (number must be between 2 and 1000)");
+      try {
+        numberOfThreads = Integer.parseInt(scanner.nextLine());
+      } catch (NumberFormatException ex) {
+      }
+      if (numberOfThreads < 2 || numberOfThreads > 1000) {
+        System.out.println("This is a invalid input");
+      } else {
+        repeat = false;
+      }
+    }
+    return numberOfThreads;
+  }
+
+  public void createThreads(int numberofThreads) {
+    for (int i = 0; i < numberofThreads; i++) {
       NumberThread numberThread = new NumberThread(new NumberData());
       threadList.add(numberThread);
     }
@@ -30,9 +52,6 @@ public class ThreadController {
 
   public void getInformation() throws InterruptedException {
     int sum = 0;
-    for (NumberThread n : threadList) {
-        System.out.println(n.getId()+" | "+n.getState()+" | "+n.getStartTime());
-    }
 
     while (threadList.size() > 0) {
       System.out.println();
