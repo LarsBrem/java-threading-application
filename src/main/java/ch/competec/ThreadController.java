@@ -2,12 +2,13 @@ package ch.competec;
 
 import java.lang.Thread.State;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
 public class ThreadController {
 
-  private List<NumberThread> threadList = new ArrayList<>();
+  NumberData numberData = new NumberData();
 
   public int preCreateThreads() {
     int numberOfThreads = 0;
@@ -30,49 +31,77 @@ public class ThreadController {
     return numberOfThreads;
   }
 
-  public void createThreads(int numberofThreads) {
+  public void createThreads(int numberofThreads) throws InterruptedException {
     for (int i = 0; i < numberofThreads; i++) {
-      NumberThread numberThread = new NumberThread(new NumberData());
-      threadList.add(numberThread);
+      NumberThread numberThread = new NumberThread(numberData);
+      numberThread.start();
     }
+    checkIfThreadsStarted();
   }
 
-  public void startThreads() throws InterruptedException {
-    for (NumberThread n : threadList) {
-      n.start();
-    }
-
+  public void checkIfThreadsStarted() throws InterruptedException {
     Thread.sleep(1000);
 
-    if (!threadList.stream().allMatch(o -> State.TIMED_WAITING.equals(o.getState()))) {
-      System.out.println("The application didn't start the right amount of threads!");
-      System.exit(0);
-    }
+    Thread.getAllStackTraces().keySet().forEach((t) -> {
+      if (t.getName().contains("Thread-")) {
+        if (!t.getState().equals(State.TIMED_WAITING)) {
+          System.out.println("The application didn't start the right amount of threads!");
+          System.exit(0);
+        }
+      }
+    });
   }
 
   public void getInformation() throws InterruptedException {
-    int sum = 0;
+    boolean repeat = true;
 
-    while (threadList.size() > 0) {
+    List<String> outputList = new ArrayList<>();
+
+    while (repeat) {
+      outputList.clear();
       System.out.println();
-      List<NumberThread> temporaryList = new ArrayList<>(threadList);
-      for (NumberThread n : temporaryList) {
-        if (n.getNumber() != 0) {
-          sum = sum + n.getNumber();
+      Thread.getAllStackTraces().keySet().forEach(t -> {
+        if (t.getName().contains("Thread-")) {
+          outputList.add(
+              t.getId() + " | " + t.getState() + " | " + ((NumberThread) t).getStartTime());
         }
-        if (n.getState() == State.TERMINATED) {
-          threadList.remove(n);
-        } else {
-          System.out.println(n.getId()+" | "+n.getState()+" | "+n.getStartTime());
-        }
+      });
+
+      if (outputList.isEmpty()) {
+        repeat = false;
+        continue;
       }
+
+      System.out.print(sortThreadOutput(outputList));
+
       Thread.sleep(1000);
     }
 
-    System.out.println("Your randomly generated sum is: "+sum);
+    System.out.println("Your randomly generated sum is: " + numberData.getSum());
   }
 
-  public List<NumberThread> getThreadList() {
-    return threadList;
+  private String sortThreadOutput(List<String> outputList) {
+    String output = "";
+    List<Integer> unsortedIntList = new ArrayList<>();
+    List<Integer> sortedIntList = new ArrayList<>();
+    List<Integer> indexList = new ArrayList<>();
+
+    for (String s : outputList) {
+      String x = s.substring(0, s.indexOf(' '));
+      unsortedIntList.add(Integer.parseInt(x));
+      sortedIntList.add(Integer.parseInt(x));
+    }
+
+    sortedIntList.sort(Comparator.naturalOrder());
+
+    for (int i : sortedIntList) {
+      indexList.add(unsortedIntList.indexOf(i));
+    }
+
+    for (int i : indexList) {
+      output = output + outputList.get(i) + "\n";
+    }
+
+    return output;
   }
 }
