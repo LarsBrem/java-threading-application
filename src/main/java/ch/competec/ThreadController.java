@@ -36,20 +36,27 @@ public class ThreadController {
       NumberThread numberThread = new NumberThread(numberData);
       numberThread.start();
     }
-    checkIfThreadsStarted();
+    if (!checkIfThreadsStarted(numberofThreads)) {
+      System.out.println("The application didn't start the right amount of threads!");
+      System.exit(0);
+    }
   }
 
-  public void checkIfThreadsStarted() throws InterruptedException {
+  public boolean checkIfThreadsStarted(int numberOfCreatedThreads) throws InterruptedException {
     Thread.sleep(1000);
 
-    Thread.getAllStackTraces().keySet().forEach((t) -> {
+    int numberOfStartedThreads = 0;
+
+    for (Thread t : Thread.getAllStackTraces().keySet()) {
       if (t.getName().contains("Thread-")) {
+        numberOfStartedThreads++;
         if (!t.getState().equals(State.TIMED_WAITING)) {
-          System.out.println("The application didn't start the right amount of threads!");
-          System.exit(0);
+          return false;
         }
       }
-    });
+    }
+
+    return numberOfCreatedThreads == numberOfStartedThreads;
   }
 
   public void getInformation() throws InterruptedException {

@@ -3,6 +3,7 @@ package ch.competec;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -71,39 +72,27 @@ public class ThreadControllerTest {
   public void createThreads_isNumberOfThreadsCorrect() {
     int numberOfThreads = 5;
 
-    threadController.createThreads(numberOfThreads);
-
-    assertEquals(numberOfThreads, threadController.getThreadList().size());
-  }
-
-  @Test
-  public void startThreads_isThreadAlive() {
-    int numberOfThreads = 5;
-
-    threadController.createThreads(numberOfThreads);
     try {
-      threadController.startThreads();
+      threadController.createThreads(numberOfThreads);
+      assertTrue(threadController.checkIfThreadsStarted(numberOfThreads));
     } catch (InterruptedException ex) {
-      assertEquals(1, 2);
+      fail();
     }
-    assertTrue(threadController.getThreadList().get(0).isAlive());
   }
 
   @Test
   public void getInformation_returnsSum() {
     int numberOfThreads = 5;
 
-    threadController.createThreads(numberOfThreads);
-
     ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     PrintStream originalOut = System.out;
     System.setOut(new PrintStream(outContent));
 
     try {
-      threadController.startThreads();
+      threadController.createThreads(numberOfThreads);
       threadController.getInformation();
     } catch (InterruptedException ex) {
-      assertEquals(1, 2);
+      fail();
     }
 
     String substring = outContent.toString()
