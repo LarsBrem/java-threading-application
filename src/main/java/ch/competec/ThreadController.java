@@ -48,7 +48,7 @@ public class ThreadController {
     int numberOfStartedThreads = 0;
 
     for (Thread t : Thread.getAllStackTraces().keySet()) {
-      if (t.getName().contains("Thread-")) {
+      if (t.getClass().equals(NumberThread.class)) {
         numberOfStartedThreads++;
         if (!t.getState().equals(State.TIMED_WAITING)) {
           return false;
@@ -68,7 +68,7 @@ public class ThreadController {
       outputList.clear();
       System.out.println();
       Thread.getAllStackTraces().keySet().forEach(t -> {
-        if (t.getName().contains("Thread-")) {
+        if (t.getClass().equals(NumberThread.class)) {
           outputList.add(
               t.getId() + " | " + t.getState() + " | " + ((NumberThread) t).getStartTime());
         }
